@@ -1,39 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NSubstitute
 {
     public static class Construct
     {
-        public static TType For<TType>(params object[] parametersToUse)
+        internal static string ExceptionMessageOneCustontructor =
+            "NSubstitute.Construct only supports one Constructor per Type.";
+
+        public static TType For<TType>(params object[] constructorArguments)
             where TType : class
         {
-            return For<TType, TType>(parametersToUse);
+            return For<TType, TType>(constructorArguments);
         }
 
-        public static TInterface For<TInterface, TType>(params object[] parametersToUse)
+        public static TInterface For<TInterface, TType>(params object[] constructorArguments)
             where TInterface : class
             where TType : class
         {
-            var parameterTypesToUse = parametersToUse.SelectMany(p => p.GetType().GetInterfaces().Select(i => new
+            var constructors = typeof(TType).GetConstructors();
+            if (constructors.Length > 1)
             {
-                Interface = i.Name,
-                Parameter = p
-            })).ToArray();
-
-            var constructor = typeof(TType).GetConstructors().First();
-            var parameterInfos = constructor.GetParameters();
-
-            var parameters = new List<object>();
-            foreach (var parameterInfo in parameterInfos)
-            {
-                var given = parameterTypesToUse.FirstOrDefault(ttu => ttu.Interface == parameterInfo.ParameterType.Name);
-                parameters.Add(given == null
-                    ? Substitute.For(new[] { parameterInfo.ParameterType }, null)
-                    : given.Parameter);
+                throw new ArgumentNullException(ExceptionMessageOneCustontructor);
             }
+            var constructor = constructors.Single();
 
-            return constructor.Invoke(parameters.ToArray()) as TInterface;
+            var constructorArgumentsToUse = CreateConstructorArgumentsDictionary(constructorArguments);
+            var parameters = constructor.GetParameters().Select(
+                    parameterInfo =>
+                        constructorArgumentsToUse.ContainsKey(parameterInfo.ParameterType.Name)
+                            ? constructorArgumentsToUse[parameterInfo.ParameterType.Name]
+                            : Substitute.For(new[] {parameterInfo.ParameterType}, null))
+                .ToArray();
+
+            return constructor.Invoke(parameters) as TInterface;
+        }
+
+        private static Dictionary<string, object> CreateConstructorArgumentsDictionary(object[] constructorArguments)
+        {
+            return constructorArguments
+                .SelectMany(o
+                    => o
+                        .GetType()
+                        .GetInterfaces()
+                        .Select(i
+                            => new
+                            {
+                                Interface = i.Name,
+                                Parameter = o
+                            }))
+                .Distinct()
+                .ToDictionary(k => k.Interface, v => v.Parameter);
         }
     }
 }
