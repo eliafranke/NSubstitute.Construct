@@ -1,0 +1,15 @@
+﻿<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <description>Extends NSubstitute with capability to automatically construct instances of an object, with optional automatic mapping of injected parameters.</description>
+    <copyright>Copyright 2017 Elia Franke Ltd. All rights reserved.</copyright>
+    <tags>NSubstitute NSubstitute.Construct Construct Auto AutoConstruct</tags>
+    <iconUrl>https://raw.githubusercontent.com/eliafranke/NSubstitute.Construct/master/nsubstitute.png</iconUrl>
+    <projectUrl>https://github.com/eliafranke/NSubstitute.Construct</projectUrl>
+  </metadata>
+</package>
