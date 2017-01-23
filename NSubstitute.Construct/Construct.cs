@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace NSubstitute
@@ -29,15 +28,15 @@ namespace NSubstitute
             var constructorArgumentsToUse = CreateConstructorArgumentsDictionary(constructorArguments);
             var parameters = constructor.GetParameters().Select(
                     parameterInfo =>
-                        constructorArgumentsToUse.ContainsKey(parameterInfo.ParameterType.Name)
-                            ? constructorArgumentsToUse[parameterInfo.ParameterType.Name]
+                        constructorArgumentsToUse.Contains(parameterInfo.ParameterType.Name)
+                            ? constructorArgumentsToUse[parameterInfo.ParameterType.Name].First()
                             : Substitute.For(new[] {parameterInfo.ParameterType}, null))
                 .ToArray();
 
             return constructor.Invoke(parameters) as TInterface;
         }
 
-        private static Dictionary<string, object> CreateConstructorArgumentsDictionary(object[] constructorArguments)
+        private static ILookup<string, object> CreateConstructorArgumentsDictionary(object[] constructorArguments)
         {
             return constructorArguments
                 .SelectMany(o
@@ -51,7 +50,7 @@ namespace NSubstitute
                                 Parameter = o
                             }))
                 .Distinct()
-                .ToDictionary(k => k.Interface, v => v.Parameter);
+                .ToLookup(k => k.Interface, v => v.Parameter);
         }
     }
 }

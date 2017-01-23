@@ -34,12 +34,17 @@ namespace Tests
         [InlineData("A string")]
         public void Construct_ReturnsExpectedType_AndUsesGivenParameters(string input)
         {
-            var add = Substitute.For<IDoItemWithRepository>();
+            var add = Substitute.For<IAddItemToRepository>();
             add
+                .AddItem(Arg.Any<Guid>())
+                .Returns(input);
+
+            var doItem = Substitute.For<IDoItemWithRepository>();
+            doItem
                 .DoItem(Arg.Any<Guid>())
                 .Returns(input);
 
-            var repository = Construct.For<Repository>(add);
+            var repository = Construct.For<Repository>(doItem, add);
 
             var result = repository.DoItem(Guid.NewGuid());
 
@@ -47,7 +52,5 @@ namespace Tests
                 .Should()
                 .Be(input);
         }
-
-
     }
 }
