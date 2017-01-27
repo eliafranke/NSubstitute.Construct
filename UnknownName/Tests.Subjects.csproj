@@ -49,6 +49,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoveItemFromRepository.cs" />
     <Compile Include="Repository.cs" />
+    <Compile Include="TypicalMicrosoftClass.cs" />
     <Compile Include="UpdateItemInRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

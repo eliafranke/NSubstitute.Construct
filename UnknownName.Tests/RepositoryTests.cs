@@ -19,7 +19,9 @@ namespace Tests
                 .AddItem(Arg.Any<Guid>())
                 .Returns(input);
 
-            var repository = Construct.For<IAddItemToRepository, Repository>(add);
+            var repository = Construct.For<IAddItemToRepository, Repository>(
+                CreateTypicalMicrosoftClass(),
+                add);
 
             var result = repository.AddItem(Guid.NewGuid());
 
@@ -44,13 +46,21 @@ namespace Tests
                 .DoItem(Arg.Any<Guid>())
                 .Returns(input);
 
-            var repository = Construct.For<Repository>(doItem, add);
+            var repository = Construct.For<Repository>(
+                CreateTypicalMicrosoftClass(),
+                doItem,
+                add);
 
             var result = repository.DoItem(Guid.NewGuid());
 
             result
                 .Should()
                 .Be(input);
+        }
+
+        private static TypicalMicrosoftClass CreateTypicalMicrosoftClass()
+        {
+            return new TypicalMicrosoftClass();
         }
     }
 }

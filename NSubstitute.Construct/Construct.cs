@@ -25,18 +25,21 @@ namespace NSubstitute
             }
             var constructor = constructors.Single();
 
-            var constructorArgumentsToUse = CreateConstructorArgumentsDictionary(constructorArguments);
+            var constructorInterfaceArgumentsLookup = CreateConstructorInterfaceArgumentsLookup(constructorArguments);
+            var constructorTypeArgumentsLookup = CreateConstructorTypeArgumentsLookup(constructorArguments);
             var parameters = constructor.GetParameters().Select(
                     parameterInfo =>
-                        constructorArgumentsToUse.Contains(parameterInfo.ParameterType.Name)
-                            ? constructorArgumentsToUse[parameterInfo.ParameterType.Name].First()
+                        constructorInterfaceArgumentsLookup.Contains(parameterInfo.ParameterType.Name)
+                        ? constructorInterfaceArgumentsLookup[parameterInfo.ParameterType.Name].First()
+                        : constructorTypeArgumentsLookup.Contains(parameterInfo.ParameterType.Name)
+                            ? constructorTypeArgumentsLookup[parameterInfo.ParameterType.Name].First()
                             : Substitute.For(new[] {parameterInfo.ParameterType}, null))
                 .ToArray();
 
             return constructor.Invoke(parameters) as TInterface;
         }
 
-        private static ILookup<string, object> CreateConstructorArgumentsDictionary(object[] constructorArguments)
+        private static ILookup<string, object> CreateConstructorInterfaceArgumentsLookup(object[] constructorArguments)
         {
             return constructorArguments
                 .SelectMany(o
@@ -51,6 +54,20 @@ namespace NSubstitute
                             }))
                 .Distinct()
                 .ToLookup(k => k.Interface, v => v.Parameter);
+        }
+
+        private static ILookup<string, object> CreateConstructorTypeArgumentsLookup(object[] constructorArguments)
+        {
+            return constructorArguments
+                .Where(p => !p.GetType().GetInterfaces().Any())
+                .Select(p
+                    => new
+                    {
+                        TypeName = p.GetType().Name,
+                        Parameter = p
+                    })
+                .Distinct()
+                .ToLookup(k => k.TypeName, v => v.Parameter);
         }
     }
 }
