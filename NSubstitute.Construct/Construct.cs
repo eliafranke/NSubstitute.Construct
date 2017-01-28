@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NSubstitute
@@ -39,7 +40,7 @@ namespace NSubstitute
             return constructor.Invoke(parameters) as TInterface;
         }
 
-        private static ILookup<string, object> CreateConstructorInterfaceArgumentsLookup(object[] constructorArguments)
+        private static ILookup<string, object> CreateConstructorInterfaceArgumentsLookup(IEnumerable<object> constructorArguments)
         {
             return constructorArguments
                 .SelectMany(o
@@ -56,7 +57,7 @@ namespace NSubstitute
                 .ToLookup(k => k.Interface, v => v.Parameter);
         }
 
-        private static ILookup<string, object> CreateConstructorTypeArgumentsLookup(object[] constructorArguments)
+        private static ILookup<string, object> CreateConstructorTypeArgumentsLookup(IEnumerable<object> constructorArguments)
         {
             return constructorArguments
                 .Where(p => !p.GetType().GetInterfaces().Any())
