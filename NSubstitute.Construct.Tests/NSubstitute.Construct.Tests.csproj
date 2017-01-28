@@ -84,13 +84,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NSubstitute.Construct.Tests.Subjects\NSubstitute.Construct.Tests.Subjects.csproj">
+      <Project>{BEABF366-9750-4DDB-B94D-98886BD36482}</Project>
+      <Name>NSubstitute.Construct.Tests.Subjects</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NSubstitute.Construct\NSubstitute.Construct.csproj">
       <Project>{058666ac-840e-4e94-86ad-f5d57cb4dc43}</Project>
       <Name>NSubstitute.Construct</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UnknownName\Tests.Subjects.csproj">
-      <Project>{BEABF366-9750-4DDB-B94D-98886BD36482}</Project>
-      <Name>Tests.Subjects</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
