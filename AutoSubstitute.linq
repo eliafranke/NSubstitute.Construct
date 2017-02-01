@@ -1,15 +1,19 @@
 <Query Kind="Program">
+  <NuGetReference>Microsoft.ServiceFabric.Actors</NuGetReference>
   <NuGetReference>NSubstitute</NuGetReference>
-  <Namespace>System.Threading.Tasks</Namespace>
   <Namespace>NSubstitute</Namespace>
+  <Namespace>System.Threading.Tasks</Namespace>
+  <Namespace>Microsoft.ServiceFabric.Actors.Runtime</Namespace>
+  <Namespace>Microsoft.ServiceFabric.Actors</Namespace>
 </Query>
 
 void Main()
 {
 	var tmClass = new TypicalMicrosoftClass();
+	var actorId = ActorId.CreateRandom();
 	IAddItemToRepository addItemToRepository = new AddItemToRepository();
 	IUpdateItemInRepository updateItemInRepository = new UpdateItemInRepository();
-	var with = Construct<Repository, Repository>(tmClass, addItemToRepository, updateItemInRepository);
+	var with = Construct<Repository, Repository>(actorId, tmClass, addItemToRepository, updateItemInRepository);
 	//with.DoItem(Guid.NewGuid()).Dump();
 	with.GetConstructionTime().Dump();
 }
@@ -18,13 +22,15 @@ private I Construct<I, T>(params object[] parametersToUse)
 	where I : class 
 	where T : class
 {
+	parametersToUse.Select(p => p.GetType()).Dump();
+	
 	var parameterInterfacesToUse = parametersToUse.SelectMany(p => p.GetType().GetInterfaces().Select(i => new
 	{
 		Interface = i.Name,
 		Parameter = p
 	})).ToArray();
 
-	var parameterTypesToUse = parametersToUse.Where(p => !p.GetType().GetInterfaces().Any()).Select(p => new
+	var parameterTypesToUse = parametersToUse.Where(p => !p.GetType().GetInterfaces().Any() || p.GetType().IsSealed).Select(p => new
 	{
 		TypeName = p.GetType().Name,
 		Parameter = p
@@ -63,6 +69,7 @@ public sealed class Repository :
 	IRemoveItemFromRepository,
 	IDoItemWithRepository
 {
+	private readonly ActorId _actorId;
 	private readonly TypicalMicrosoftClass _typicalMicrosoftClass;
 	private readonly IAddItemToRepository _addItemToRepository;
 	private readonly IUpdateItemInRepository _updateItemInRepository;
@@ -70,12 +77,14 @@ public sealed class Repository :
 	private readonly IDoItemWithRepository _doItemWithRepository;
 
 	public Repository(
+		ActorId actorId,
 		TypicalMicrosoftClass typicalMicrosoftClass,
 		IAddItemToRepository addItemToRepository,
 		IUpdateItemInRepository updateItemInRepository,
 		IRemoveItemFromRepository removeItemFromRepository,
 		IDoItemWithRepository doItemWithRepository)
 	{
+		_actorId = actorId;
 		_typicalMicrosoftClass = typicalMicrosoftClass;
 		_addItemToRepository = addItemToRepository;
 		_updateItemInRepository = updateItemInRepository;
@@ -85,7 +94,7 @@ public sealed class Repository :
 
 	public string GetConstructionTime()
 	{
-		return _typicalMicrosoftClass.GetConstructionTime();
+		return _typicalMicrosoftClass.GetConstructionTime() + _actorId.ToString();
 	}
 
 	string IAddItemToRepository.AddItem(Guid item)
