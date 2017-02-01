@@ -60,7 +60,7 @@ namespace NSubstitute
         private static ILookup<string, object> CreateConstructorTypeArgumentsLookup(IEnumerable<object> constructorArguments)
         {
             return constructorArguments
-                .Where(p => !p.GetType().GetInterfaces().Any())
+                .Where(p => p.GetType().IsSealed || !p.GetType().GetInterfaces().Any())
                 .Select(p
                     => new
                     {
