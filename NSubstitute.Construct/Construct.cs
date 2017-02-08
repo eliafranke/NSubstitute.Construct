@@ -17,7 +17,7 @@ namespace NSubstitute
 
         public static TInterface For<TInterface, TType>(params object[] constructorArguments)
             where TInterface : class
-            where TType : class
+            where TType : class, TInterface
         {
             var constructors = typeof(TType).GetConstructors();
             if (constructors.Length > 1)
