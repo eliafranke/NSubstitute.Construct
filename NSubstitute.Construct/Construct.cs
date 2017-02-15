@@ -30,10 +30,10 @@ namespace NSubstitute
             var constructorTypeArgumentsLookup = CreateConstructorTypeArgumentsLookup(constructorArguments);
             var parameters = constructor.GetParameters().Select(
                     parameterInfo =>
-                        constructorInterfaceArgumentsLookup.Contains(parameterInfo.ParameterType.Name)
-                        ? constructorInterfaceArgumentsLookup[parameterInfo.ParameterType.Name].First()
-                        : constructorTypeArgumentsLookup.Contains(parameterInfo.ParameterType.Name)
-                            ? constructorTypeArgumentsLookup[parameterInfo.ParameterType.Name].First()
+                        constructorInterfaceArgumentsLookup.Contains(parameterInfo.ParameterType.FullName)
+                        ? constructorInterfaceArgumentsLookup[parameterInfo.ParameterType.FullName].First()
+                        : constructorTypeArgumentsLookup.Contains(parameterInfo.ParameterType.FullName)
+                            ? constructorTypeArgumentsLookup[parameterInfo.ParameterType.FullName].First()
                             : Substitute.For(new[] {parameterInfo.ParameterType}, null))
                 .ToArray();
 
@@ -50,7 +50,7 @@ namespace NSubstitute
                         .Select(i
                             => new
                             {
-                                Interface = i.Name,
+                                Interface = i.FullName,
                                 Parameter = o
                             }))
                 .Distinct()
@@ -64,7 +64,7 @@ namespace NSubstitute
                 .Select(p
                     => new
                     {
-                        TypeName = p.GetType().Name,
+                        TypeName = p.GetType().FullName,
                         Parameter = p
                     })
                 .Distinct()
